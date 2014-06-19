@@ -1,0 +1,19 @@
+[user]
+    name = Mohammad Gufran
+    email = dogabhai@gmail.com
+    signingkey = 8F43B8B5
+
+[alias]
+    churn = "!git rev-list --objects --all | awk '$2' | sort -k2 | uniq -cf1 | sort -rn"
+
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true
+
+[core]
+	ignorecase = true
+	autocrlf = input
+	excludesfile = /Users/Gufran/.gitignore_global
+	pager = less -x4
+

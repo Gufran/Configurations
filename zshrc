@@ -1,59 +1,54 @@
+export ZSH=$HOME/.oh-my-zsh
+
+set -W
+set -o vi
+
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-#############################################################
-eval `ssh-agent -s` >> /dev/null 
-ssh-add
-#############################################################
-
-# Path to the oh-my-zsh configuration.
-ZSH=$HOME/.oh-my-zsh
-
-ZSH_THEME="blinks"
+ZSH_THEME="honukai"
+HYPHEN_INSENSITIVE="true"
+ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
-
-
-plugins=(git ruby zsh-syntax-highlighting coffee autojump command-not-found colored-man composer extract history laravel python tmux)
 
 source $ZSH/oh-my-zsh.sh
 
-export TERM="xterm-256color"
+export EDITOR=vim
+export GIT_EDITOR=nvim
+export NVIM_TUI_ENABLE_TRUE_COLOR=1
 
-export EDITOR="vim"
+alias todo=togoo
+alias project="./project.sh"
 
+plugins=(git extract zsh-syntax-highlighting history)
 
-#####################################################################
-#                   Enable Vi mode on terminal                      #
-#####################################################################
-
-
-set -o vi
-
-
-#####################################################################
-#                           INTIATE RVM                             #
-#####################################################################
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-
-#####################################################################
-#                           INITITATE TMUX                          #
-#####################################################################
-
-if [[ "$COLORTERM" -eq "gnome-terminal" ]]; then
-    if [ -z $TMUX ]; then
-        exec tmux
-   fi
-fi
+[ -s "$HOME/.shell-secrets" ] && . "$HOME/.shell-secrets"
+[ -s "$NVM_DIR/nvm.sh"  ] && . "$NVM_DIR/nvm.sh"
+[ -f $HOME/.phpbrew/bashrc ] && . $HOME/.phpbrew/bashrc
+[ -f ~/.rvm/scripts/rvm ] && . ~/.rvm/scripts/rvm
+[ -f "${HOME}/.iterm2_shell_integration.zsh" ] && . "${HOME}/.iterm2_shell_integration.zsh"
+[ -f $HOME/.opam/opam-init/init.zsh ] && . $HOME/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+[ -f /usr/local/bin/google-cloud-sdk/path.zsh.inc ] && . '/usr/local/bin/google-cloud-sdk/path.zsh.inc'
+[ -f /usr/local/bin/google-cloud-sdk/completion.zsh.inc ] && . '/usr/local/bin/google-cloud-sdk/completion.zsh.inc'
 
 
-######################################################################
-#           CREATE A DIRECTORY IF NOT EXISTS AND CD INTO IT          #
-######################################################################
+# Set $PATH in a separate file
+[ -f "$HOME/.shell-path" ] && . "$HOME/.shell-path"
 
+alias ls="ls -FGhl"
+
+trim() {
+    awk '{$1=$1};1'
+}
+
+# ZSH can invoke a shell script on CD
+function chpwd() {
+    [ -f "$HOME/bin/chdir-hook" ] && $HOME/bin/chdir-hook
+}
+
+# change to a directory and create it if it doesn't exist
 function cddir() {
-
     if [ -z $1 ]; then
         cd ~
     else
@@ -73,12 +68,41 @@ function cddir() {
 
 alias cd="cddir"
 
-#####################################################################################
-#           Initialize all othe personalized config in external file                #
-#####################################################################################
+typeset -Ag abbreviations
+abbreviations=(
+  "Im"    "| more"
+  "Ia"    "| awk"
+  "Ig"    "| grep"
+  "Ieg"   "| egrep"
+  "Iag"   "| agrep"
+  "Igr"   "| groff -s -p -t -e -Tlatin1 -mandoc"
+  "Ip"    "| $PAGER"
+  "Ih"    "| head"
+  "Ik"    "| keep"
+  "It"    "| tail"
+  "Is"    "| sort"
+  "Iv"    "| ${VISUAL:-${EDITOR}}"
+  "Iw"    "| wc"
+  "Ix"    "| xargs"
+)
 
-if [ -f "$HOME/.term-config" ]; then 
+magic-abbrev-expand() {
+    local MATCH
+    LBUFFER=${LBUFFER%%(#m)[_a-zA-Z0-9]#}
+    LBUFFER+=${abbreviations[$MATCH]:-$MATCH}
+    zle self-insert
+}
 
-    source "$HOME/.term-config"
+no-magic-abbrev-expand() {
+  LBUFFER+=' '
+}
 
-fi
+
+zle -N magic-abbrev-expand
+zle -N no-magic-abbrev-expand
+
+bindkey " " magic-abbrev-expand
+bindkey "^x " no-magic-abbrev-expand
+
+bindkey -M isearch " " self-insert
+
