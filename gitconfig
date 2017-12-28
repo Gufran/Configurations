@@ -17,3 +17,7 @@
 	excludesfile = /Users/Gufran/.gitignore_global
 	pager = less -x4
 
+[http]
+	cookiefile = /Users/Gufran/.gitcookies
+[credential]
+	helper = osxkeychain

@@ -2,9 +2,6 @@ function box_name {
     [ -f ~/.box-name ] && cat ~/.box-name || echo $HOST
 }
 
-# I use togoo (https://github.com/kakakakakku/togoo) to keep track of
-# quick todo notes on terminal prompt
-local todo_count='$($HOME/Workspace/Go/bin/togoo list --plain | wc -l | xargs)'
 local current_dir='${PWD/#$HOME/~}'
 local job_status='$(active_job_prompt)'
 active_job_prompt() {
@@ -52,7 +49,6 @@ PROMPT="
 %{$fg[green]%}$(box_name) \
 %{$fg[white]%}in \
 %{$terminfo[bold]$fg[yellow]%}${current_dir}%{$reset_color%} \
-%{$terminfo[bold]$fg[blue]%}[${todo_count} todo]%{$reset_color%}\
 ${hg_info}\
 ${git_info} \
 %{$fg[blue]%}${job_status}
